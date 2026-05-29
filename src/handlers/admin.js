@@ -113,7 +113,7 @@ export async function handleAdminAPI(request, env, sys) {
       });
     }
     else if (data.action === 'edit') {
-      const { id, server_group, price, expire_date, bandwidth, traffic_limit, is_hidden } = data;
+      const { id, name, server_group, price, expire_date, bandwidth, traffic_limit, is_hidden } = data;
       if (!id || !isValidUUID(id)) {
         return new Response(JSON.stringify({ error: '服务器 ID 无效' }), { 
           status: 400,
@@ -121,19 +121,36 @@ export async function handleAdminAPI(request, env, sys) {
         });
       }
       
-      await env.DB.prepare(`
-        UPDATE servers 
-        SET server_group = ?, price = ?, expire_date = ?, bandwidth = ?, traffic_limit = ?, is_hidden = ? 
-        WHERE id = ?
-      `).bind(
-        server_group || 'Default', 
-        price || '', 
-        expire_date || '', 
-        bandwidth || '', 
-        traffic_limit || '',
-        is_hidden || '0',
-        id
-      ).run();
+      if (name && typeof name === 'string' && name.trim().length > 0 && name.length <= 100) {
+        await env.DB.prepare(`
+          UPDATE servers 
+          SET name = ?, server_group = ?, price = ?, expire_date = ?, bandwidth = ?, traffic_limit = ?, is_hidden = ? 
+          WHERE id = ?
+        `).bind(
+          name,
+          server_group || 'Default', 
+          price || '', 
+          expire_date || '', 
+          bandwidth || '', 
+          traffic_limit || '',
+          is_hidden || '0',
+          id
+        ).run();
+      } else {
+        await env.DB.prepare(`
+          UPDATE servers 
+          SET server_group = ?, price = ?, expire_date = ?, bandwidth = ?, traffic_limit = ?, is_hidden = ? 
+          WHERE id = ?
+        `).bind(
+          server_group || 'Default', 
+          price || '', 
+          expire_date || '', 
+          bandwidth || '', 
+          traffic_limit || '',
+          is_hidden || '0',
+          id
+        ).run();
+      }
       
       return new Response(JSON.stringify({ success: true, message: '服务器信息已更新' }), {
         headers: { 'Content-Type': 'application/json' }

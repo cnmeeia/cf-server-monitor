@@ -72,7 +72,7 @@ export async function handleAdminUI(request, env, sys) {
               </div>
               <div class="action-btns">
                 <button onclick="copyCmd('${s.id}')" class="btn btn-icon btn-green" title="复制命令">📋</button>
-                <button onclick="openEditModal('${s.id}', '${s.server_group||''}', '${s.price||''}', '${s.expire_date||''}', '${s.bandwidth||''}', '${s.traffic_limit||''}', '${s.is_hidden||'0'}')" class="btn btn-icon btn-blue" title="编辑">✏️</button>
+                <button onclick="openEditModal('${s.id}', '${s.name||''}', '${s.server_group||''}', '${s.price||''}', '${s.expire_date||''}', '${s.bandwidth||''}', '${s.traffic_limit||''}', '${s.is_hidden||'0'}')" class="btn btn-icon btn-blue" title="编辑">✏️</button>
                 <button onclick="deleteServer('${s.id}')" class="btn btn-icon btn-red" title="删除">🗑️</button>
               </div>
             </div>
@@ -1095,6 +1095,11 @@ export async function handleAdminUI(request, env, sys) {
         <input type="hidden" id="editId">
         
         <div class="form-group">
+          <label class="form-label">Hostname <span class="required">*</span></label>
+          <input type="text" id="editName" class="form-input" placeholder="e.g. My Server">
+        </div>
+        
+        <div class="form-group">
           <label class="form-label">Group Name</label>
           <input type="text" id="editGroup" class="form-input" placeholder="e.g. US VPS">
         </div>
@@ -1381,8 +1386,9 @@ export async function handleAdminUI(request, env, sys) {
     }
     
     // 编辑弹窗
-    function openEditModal(id, group, price, expire, bw, traffic, hidden) {
+    function openEditModal(id, name, group, price, expire, bw, traffic, hidden) {
       document.getElementById('editId').value = id;
+      document.getElementById('editName').value = name || '';
       document.getElementById('editGroup').value = group || 'Default';
       document.getElementById('editPrice').value = price || '';
       document.getElementById('editExpire').value = expire || '';
@@ -1400,6 +1406,7 @@ export async function handleAdminUI(request, env, sys) {
       const data = {
         action: 'edit', 
         id: document.getElementById('editId').value,
+        name: document.getElementById('editName').value,
         server_group: document.getElementById('editGroup').value,
         price: document.getElementById('editPrice').value,
         expire_date: document.getElementById('editExpire').value,
